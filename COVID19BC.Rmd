@@ -1,0 +1,82 @@
+---
+title: "COVID-19 Trend in BC"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This is a breakdown of every confirmed or presumed COVID-19 case in BC over time. (source: https://www.ctvnews.ca/health/coronavirus/tracking-every-case-of-covid-19-in-canada-1.4852102)
+
+```{r, echo=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+casedate <- as.Date(c('2020-01-28','2020-02-04','2020-02-06','2020-02-14','2020-02-20','2020-02-24','2020-03-03','2020-03-04','2020-03-05','2020-03-07', '2020-03-09','2020-03-10','2020-03-11','2020-03-12','2020-03-13','2020-03-14','2020-03-15','2020-03-16', '2020-03-17', '2020-03-18', '2020-03-19','2020-03-20'))
+cases <- c(1,1,2,1,1,1,5,1,8,6,5,7,7,7,11,9,0,30,0,0,0,0)
+deaths <- c(0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,3,0,0,0,0)
+
+covidbc.data <- data.frame(casedate,cases,deaths)
+totalcases <- sum(cases)
+totaldeaths <- sum(deaths)
+covidbc.long <- covidbc.data %>%
+  gather("Stat", "Value", -casedate)
+```
+
+Total cases as of `r format(Sys.time(), '%B %d, %Y')`: `r totalcases`  
+Total deaths: `r totaldeaths`
+```{r, echo=FALSE}
+
+```
+
+## Plot
+
+```{r, echo=FALSE}
+library(ggplot2)
+#ggplot(data=covidbc.data, aes(x=casedate, y=cases)) + geom_bar(stat="identity")
+ggplot(data=covidbc.long, aes(x = casedate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
+```
+
+## Italy
+
+Let's compare this trend with Italy.
+
+The population of Vancouver Metro is ~2.5M
+
+The population of Italy is ~60.5M
+
+Which gives us a ratio of `r 2.5 / 60.5` Vancouver to Italy
+
+Using stats from https://www.worldometers.info/coronavirus/country/italy/, let's see if we can find a time that Italy had a similar Daily New Case level.
+
+```{r, echo=FALSE}
+icases <- c(0,0,0,0,3,1,15,58,78,72,94,147,185,234,239,573,335,466,587,769,778,1247)
+icasesbc <- icases*0.0413223
+icasesbc
+
+covidbc.idata <- data.frame(casedate,cases,deaths,icasesbc)
+
+covidbc.ilong <- covidbc.idata %>%
+  gather("Stat", "Value", -casedate)
+
+ggplot(data=covidbc.ilong, aes(x = casedate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
+```
+
+## Log Trend
+
+Let's take the raw data, perform a log transform, and then a linear fit
+We can then try to predict future numbers
+
+```{r, echo=FALSE}
+logcases <- log(cases)
+covidbc.logdata <- data.frame(casedate,logcases)
+
+p <- ggplot(covidbc.logdata, aes(casedate, logcases)) +
+  geom_point()
+p + geom_smooth(method = "loess")
+
+
+
+```
