@@ -56,7 +56,7 @@ Which gives us a ratio of `r 2.5 / 60.5` Vancouver to Italy
 Using stats from https://www.worldometers.info/coronavirus/country/italy/, let's see if we can find a time that Italy had a similar Daily New Case level.
 
 ```{r, echo=FALSE}
-covidbc.data$ItalyCasesBC <- covidbc.data$ItalyCases*0.0413223
+covidbc.data$ItalyCasesBC <- covidbc.data$ItalyCases*0.04682539682
 #covidbc.data$ItalyCasesBC
 
 #covidbc.idata <- data.frame(casedate,cases,deaths,icasesbc)
@@ -68,120 +68,225 @@ covidbc.ilong <- covidbc.idata %>%
 ggplot(data=covidbc.ilong, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
 ```
 
-## Log Trend March 16th, 2020
-
-Let's take the raw data, perform a log transform, and then a linear fit
-We can then try to predict future numbers
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-#covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases)
-covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 50)
-
-covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases)
-#covidbc.middle
-
-covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog"))
-
-covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA
-
-modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata)
-
-new.dayfirstcase <- data.frame(DayFirstCase = 50:60)
-new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase)
-
-p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) +
-  geom_point()
-p + geom_smooth(method = "lm")
-
-covidbc.data$BCCasesPredicted = covidbc.data$BCCases
 
 
-covidbc.data[50:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog)
 
-#covidbc.logdata[50:60, "BCCasesLog"] = new.dayfirstcase$BCCasesLog
+<!-- ## Log Trend March 16th, 2020 -->
 
-#covidbc.data$BCCasesPredicted <-10^(covidbc.logdata$BCCasesLog)
+<!-- Let's take the raw data, perform a log transform, and then a linear fit -->
+<!-- We can then try to predict future numbers -->
 
-#covidbc.data$BCCasesPredicted
+<!-- ```{r, echo=FALSE, message=FALSE, warning=FALSE} -->
 
-covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC"))
+<!-- #covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases) -->
+<!-- covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 50) -->
 
-covidbc.longpred <- covidbc.bcsubpred %>%
-  gather("Stat", "Value", -BCDate)
-```
+<!-- covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases) -->
+<!-- #covidbc.middle -->
 
-## 
+<!-- covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog")) -->
 
-```{r, echo= FALSE}
-ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
+<!-- covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA -->
 
-#covidbc.bcsubpred
+<!-- modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata) -->
 
-```
+<!-- new.dayfirstcase <- data.frame(DayFirstCase = 50:60) -->
+<!-- new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase) -->
 
-Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[50])` new cases to be announced tomorrow (March 17th)
+<!-- p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) + -->
+<!--   geom_point() -->
+<!-- p + geom_smooth(method = "lm") -->
 
-## Log Trend March 17th, 2020
-
-Today it was announced there were 83 new cases  
-And 3 new deaths  
-Here is the new predictions
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-#covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases)
-covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 51)
-
-covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases)
-#covidbc.middle
-
-covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog"))
-
-covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA
-
-modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata)
-
-new.dayfirstcase <- data.frame(DayFirstCase = 51:60)
-new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase)
-
-p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) +
-  geom_point()
-p + geom_smooth(method = "lm")
-
-covidbc.data$BCCasesPredicted = covidbc.data$BCCases
+<!-- covidbc.data$BCCasesPredicted = covidbc.data$BCCases -->
 
 
-covidbc.data[51:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog)
+<!-- covidbc.data[50:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog) -->
 
-covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC"))
+<!-- #covidbc.logdata[50:60, "BCCasesLog"] = new.dayfirstcase$BCCasesLog -->
 
-covidbc.longpred <- covidbc.bcsubpred %>%
-  gather("Stat", "Value", -BCDate)
-```
+<!-- #covidbc.data$BCCasesPredicted <-10^(covidbc.logdata$BCCasesLog) -->
 
-## 
+<!-- #covidbc.data$BCCasesPredicted -->
 
-```{r, echo= FALSE}
+<!-- covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC")) -->
 
-ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
+<!-- covidbc.longpred <- covidbc.bcsubpred %>% -->
+<!--   gather("Stat", "Value", -BCDate) -->
+<!-- ``` -->
 
-#covidbc.bcsubpred
+<!-- ##  -->
 
-```
+<!-- ```{r, echo= FALSE} -->
+<!-- ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases") -->
 
-Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[51])` new cases to be announced tomorrow (March 18th)
+<!-- #covidbc.bcsubpred -->
 
-## Log Trend March 18th, 2020
+<!-- ``` -->
 
-Today it was announced there were 45 new cases  
+<!-- Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[50])` new cases to be announced tomorrow (March 17th) -->
+
+<!-- ## Log Trend March 17th, 2020 -->
+
+<!-- Today it was announced there were 83 new cases   -->
+<!-- And 3 new deaths   -->
+<!-- Here is the new predictions -->
+
+<!-- ```{r, echo=FALSE, message=FALSE, warning=FALSE} -->
+
+<!-- #covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases) -->
+<!-- covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 51) -->
+
+<!-- covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases) -->
+<!-- #covidbc.middle -->
+
+<!-- covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog")) -->
+
+<!-- covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA -->
+
+<!-- modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata) -->
+
+<!-- new.dayfirstcase <- data.frame(DayFirstCase = 51:60) -->
+<!-- new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase) -->
+
+<!-- p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) + -->
+<!--   geom_point() -->
+<!-- p + geom_smooth(method = "lm") -->
+
+<!-- covidbc.data$BCCasesPredicted = covidbc.data$BCCases -->
+
+
+<!-- covidbc.data[51:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog) -->
+
+<!-- covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC")) -->
+
+<!-- covidbc.longpred <- covidbc.bcsubpred %>% -->
+<!--   gather("Stat", "Value", -BCDate) -->
+<!-- ``` -->
+
+<!-- ##  -->
+
+<!-- ```{r, echo= FALSE} -->
+
+<!-- ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases") -->
+
+<!-- #covidbc.bcsubpred -->
+
+<!-- ``` -->
+
+<!-- Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[51])` new cases to be announced tomorrow (March 18th) -->
+
+<!-- ## Log Trend March 18th, 2020 -->
+
+<!-- Today it was announced there were 45 new cases   -->
+<!-- And 0 new deaths   -->
+<!-- Here is the new predictions -->
+
+<!-- ```{r, echo=FALSE, message=FALSE, warning=FALSE} -->
+
+<!-- #covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases) -->
+<!-- covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 52) -->
+
+<!-- covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases) -->
+<!-- #covidbc.middle -->
+
+<!-- covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog")) -->
+
+<!-- covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA -->
+
+<!-- modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata) -->
+
+<!-- new.dayfirstcase <- data.frame(DayFirstCase = 52:60) -->
+<!-- new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase) -->
+
+<!-- p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) + -->
+<!--   geom_point() -->
+<!-- p + geom_smooth(method = "lm") -->
+
+<!-- covidbc.data$BCCasesPredicted = covidbc.data$BCCases -->
+
+
+<!-- covidbc.data[52:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog) -->
+
+<!-- covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC")) -->
+
+<!-- covidbc.longpred <- covidbc.bcsubpred %>% -->
+<!--   gather("Stat", "Value", -BCDate) -->
+<!-- ``` -->
+
+<!-- ##  -->
+
+<!-- ```{r, echo= FALSE} -->
+
+<!-- ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases") -->
+
+<!-- #covidbc.bcsubpred -->
+
+<!-- ``` -->
+
+<!-- Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[52])` new cases to be announced tomorrow (March 19th) -->
+
+<!-- ## Log Trend March 19th, 2020 -->
+
+<!-- Today it was announced there were 40 new cases   -->
+<!-- And 1 new deaths   -->
+<!-- Here is the new predictions -->
+
+<!-- ```{r, echo=FALSE, message=FALSE, warning=FALSE} -->
+
+<!-- #covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases) -->
+<!-- covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 53) -->
+
+<!-- covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases) -->
+<!-- #covidbc.middle -->
+
+<!-- covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog")) -->
+
+<!-- covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA -->
+
+<!-- modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata) -->
+
+<!-- new.dayfirstcase <- data.frame(DayFirstCase = 53:60) -->
+<!-- new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase) -->
+
+<!-- p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) + -->
+<!--   geom_point() -->
+<!-- p + geom_smooth(method = "lm") -->
+
+<!-- covidbc.data$BCCasesPredicted = covidbc.data$BCCases -->
+
+
+<!-- covidbc.data[53:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog) -->
+
+<!-- covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC")) -->
+
+<!-- covidbc.longpred <- covidbc.bcsubpred %>% -->
+<!--   gather("Stat", "Value", -BCDate) -->
+<!-- ``` -->
+
+<!-- ##  -->
+
+<!-- ```{r, echo= FALSE} -->
+
+<!-- ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases") -->
+
+<!-- #covidbc.bcsubpred -->
+
+<!-- ``` -->
+
+<!-- Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[53])` new cases to be announced tomorrow (March 20th) -->
+
+## Log Trend March 20th, 2020
+
+Today it was announced there were 77 new cases  
 And 0 new deaths  
 Here is the new predictions
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
+newnumber=54
+
 #covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases)
-covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 52)
+covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < newnumber)
 
 covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases)
 #covidbc.middle
@@ -192,7 +297,7 @@ covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA
 
 modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata)
 
-new.dayfirstcase <- data.frame(DayFirstCase = 52:60)
+new.dayfirstcase <- data.frame(DayFirstCase = newnumber:60)
 new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase)
 
 p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) +
@@ -202,7 +307,7 @@ p + geom_smooth(method = "lm")
 covidbc.data$BCCasesPredicted = covidbc.data$BCCases
 
 
-covidbc.data[52:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog)
+covidbc.data[newnumber:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog)
 
 covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC"))
 
@@ -214,137 +319,101 @@ covidbc.longpred <- covidbc.bcsubpred %>%
 
 ```{r, echo= FALSE}
 
-ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
+ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases") + geom_vline(xintercept = as.numeric(covidbc.longpred$BCDate[newnumber-1]), linetype = "dashed", color="black")
 
-#covidbc.bcsubpred
 
 ```
 
-Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[52])` new cases to be announced tomorrow (March 19th)
-
-## Log Trend March 19th, 2020
-
-Today it was announced there were 40 new cases  
-And 1 new deaths  
-Here is the new predictions
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-#covidbc.data$BCCasesLog <- log10(covidbc.data$BCCases)
-covidbc.middle <- subset(covidbc.data, DayFirstCase > 39 & DayFirstCase < 53)
-
-covidbc.middle$BCCasesLog <- log10(covidbc.middle$BCCases)
-#covidbc.middle
-
-covidbc.logdata <- subset(covidbc.middle, select=c("DayFirstCase","BCCasesLog"))
-
-covidbc.logdata$BCCasesLog[is.infinite(covidbc.logdata$BCCasesLog)] <- NA
-
-modelbc <- lm(formula = BCCasesLog ~ DayFirstCase, data = covidbc.logdata)
-
-new.dayfirstcase <- data.frame(DayFirstCase = 53:60)
-new.dayfirstcase$BCCasesLog = predict(modelbc, newdata = new.dayfirstcase)
-
-p <- ggplot(covidbc.logdata, aes(DayFirstCase, BCCasesLog)) +
-  geom_point()
-p + geom_smooth(method = "lm")
-
-covidbc.data$BCCasesPredicted = covidbc.data$BCCases
+Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[newnumber])` new cases to be announced tomorrow (March 21st)
 
 
-covidbc.data[53:60, "BCCasesPredicted"] = 10^(new.dayfirstcase$BCCasesLog)
-
-covidbc.bcsubpred <- subset(covidbc.data, select=c("BCDate","BCCasesPredicted","BCDeaths", "ItalyCasesBC"))
-
-covidbc.longpred <- covidbc.bcsubpred %>%
-  gather("Stat", "Value", -BCDate)
-```
-
-## 
-
-```{r, echo= FALSE}
-
-ggplot(data=covidbc.longpred, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
-
-#covidbc.bcsubpred
-
-```
-
-Given this, I would predict `r round(covidbc.bcsubpred$BCCasesPredicted[53])` new cases to be announced tomorrow (March 19th)
-
-## Total Cases and a look at South Korea
-
-South Korea currently is showing a normal distribution for daily new cases
-
-```{r, echo = FALSE, message= FALSE, warning= FALSE}
-#ggplot(data=covidbc.data, aes(x = BCDate, y = SKCases)) +
-  #geom_point()
-
-x = covidbc.data$DayFirstCase[38:60]
-y = covidbc.data$SKCases[38:60]
-
-newdata <- data.frame(x,y)
-
-fit <- nls(y ~ a * dnorm(x, mean, sd), data = newdata,
-         start = list(mean = 50, sd = 1, a = 800))
-
-newpred <- predict(fit, newdata = data.frame(x))
-#newpred
-newdata$pred <- newpred
-newdata$BCDate <- covidbc.data$BCDate[38:60]
-
-ggplot(data=newdata, aes(x = BCDate, y = y)) +
-  geom_col(fill = "green") + geom_line(aes(y = pred)) + xlab("BC Date") + ylab("New Cases")
-
-#plot(y ~ x, data = newdata)
-
-#curve(predict(fit, newdata = data.frame(x = x)), from = 38, to = 60, add = TRUE)
-
-```
-
-Let's compare BC's trend with SK.
-
-The population of Vancouver Metro is ~2.5M
-
-The population of South Korea is ~51.5M
-
-Which gives us a ratio of `r 2.5 / 51.5` Vancouver to South Korea
-
-Using stats from https://www.worldometers.info/coronavirus/country/south-korea/, let's see if we can find a time that South Korea had a similar Daily New Case level.
-
-```{r, echo=FALSE}
-covidbc.data$SKCasesBC <- covidbc.data$SKCases*0.04785311832
-
-covidbc.skdata <- subset(covidbc.data, select=c("BCDate","BCCases","SKCasesBC","BCDeaths"))
-
-covidbc.sklong <- covidbc.skdata %>%
-  gather("Stat", "Value", -BCDate)
-
-ggplot(data=covidbc.sklong, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases")
-```
 
 
-```{r, echo = FALSE, message= FALSE, warning= FALSE}
 
-x = covidbc.data$DayFirstCase[38:60]
-y = covidbc.data$SKCasesBC[38:60]
 
-newdata <- data.frame(x,y)
 
-fit <- nls(y ~ a * dnorm(x, mean, sd), data = newdata,
-         start = list(mean = 50, sd = 1, a = 200))
 
-newpred <- predict(fit, newdata = data.frame(x))
-#newpred
-newdata$pred <- newpred
-newdata$BCDate <- covidbc.data$BCDate[38:60]
-newdata$BCCases <- covidbc.data$BCCases[38:60]
 
-ggplot(data=newdata, aes(x = BCDate, y = BCCases)) +
-  geom_col(fill = "green") + geom_line(aes(y = pred)) + xlab("BC Date") + ylab("New Cases")
 
-#plot(y ~ x, data = newdata)
 
-#curve(predict(fit, newdata = data.frame(x = x)), from = 38, to = 60, add = TRUE)
 
-```
+
+
+
+
+<!-- ## Total Cases and a look at South Korea -->
+
+<!-- South Korea currently is showing a normal distribution for daily new cases -->
+
+<!-- ```{r, echo = FALSE, message= FALSE, warning= FALSE} -->
+<!-- #ggplot(data=covidbc.data, aes(x = BCDate, y = SKCases)) + -->
+<!--   #geom_point() -->
+
+<!-- x = covidbc.data$DayFirstCase[38:60] -->
+<!-- y = covidbc.data$SKCases[38:60] -->
+
+<!-- newdata <- data.frame(x,y) -->
+
+<!-- fit <- nls(y ~ a * dnorm(x, mean, sd), data = newdata, -->
+<!--          start = list(mean = 50, sd = 1, a = 800)) -->
+
+<!-- newpred <- predict(fit, newdata = data.frame(x)) -->
+<!-- #newpred -->
+<!-- newdata$pred <- newpred -->
+<!-- newdata$BCDate <- covidbc.data$BCDate[38:60] -->
+
+<!-- ggplot(data=newdata, aes(x = BCDate, y = y)) + -->
+<!--   geom_col(fill = "green") + geom_line(aes(y = pred)) + xlab("BC Date") + ylab("New Cases") -->
+
+<!-- #plot(y ~ x, data = newdata) -->
+
+<!-- #curve(predict(fit, newdata = data.frame(x = x)), from = 38, to = 60, add = TRUE) -->
+
+<!-- ``` -->
+
+<!-- Let's compare BC's trend with SK. -->
+
+<!-- The population of Vancouver Metro is ~2.5M -->
+
+<!-- The population of South Korea is ~51.5M -->
+
+<!-- Which gives us a ratio of `r 2.5 / 51.5` Vancouver to South Korea -->
+
+<!-- Using stats from https://www.worldometers.info/coronavirus/country/south-korea/, let's see if we can find a time that South Korea had a similar Daily New Case level. -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- covidbc.data$SKCasesBC <- covidbc.data$SKCases*0.04785311832 -->
+
+<!-- covidbc.skdata <- subset(covidbc.data, select=c("BCDate","BCCases","SKCasesBC","BCDeaths")) -->
+
+<!-- covidbc.sklong <- covidbc.skdata %>% -->
+<!--   gather("Stat", "Value", -BCDate) -->
+
+<!-- ggplot(data=covidbc.sklong, aes(x = BCDate, y = Value, fill = Stat)) + geom_col(position = "dodge") + guides(fill=guide_legend(title=NULL)) + xlab("Date") + ylab("New Cases") -->
+<!-- ``` -->
+
+
+<!-- ```{r, echo = FALSE, message= FALSE, warning= FALSE} -->
+
+<!-- x = covidbc.data$DayFirstCase[38:60] -->
+<!-- y = covidbc.data$SKCasesBC[38:60] -->
+
+<!-- newdata <- data.frame(x,y) -->
+
+<!-- fit <- nls(y ~ a * dnorm(x, mean, sd), data = newdata, -->
+<!--          start = list(mean = 50, sd = 1, a = 200)) -->
+
+<!-- newpred <- predict(fit, newdata = data.frame(x)) -->
+<!-- #newpred -->
+<!-- newdata$pred <- newpred -->
+<!-- newdata$BCDate <- covidbc.data$BCDate[38:60] -->
+<!-- newdata$BCCases <- covidbc.data$BCCases[38:60] -->
+
+<!-- ggplot(data=newdata, aes(x = BCDate, y = BCCases)) + -->
+<!--   geom_col(fill = "green") + geom_line(aes(y = pred)) + xlab("BC Date") + ylab("New Cases") -->
+
+<!-- #plot(y ~ x, data = newdata) -->
+
+<!-- #curve(predict(fit, newdata = data.frame(x = x)), from = 38, to = 60, add = TRUE) -->
+
+<!-- ``` -->
